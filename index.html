@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Signature Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .address-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .address-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .logo-section {
+            margin-bottom: 25px;
+        }
+
+        .logo-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-preview img {
+            max-height: 60px;
+            width: auto;
+        }
+
+        .logo-preview.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .preview-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+
+        .signature-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .signature-content {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        .signature-logo {
+            margin-bottom: 15px;
+        }
+
+        .signature-logo img {
+            max-height: 60px;
+            width: auto;
+        }
+
+        .signature-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 3px;
+        }
+
+        .signature-company {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .signature-contact {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .signature-contact a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .address-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Email Signature Generator</h1>
+            <p>Create professional email signatures in seconds</p>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h2>Your Information</h2>
+                
+                <div class="logo-section">
+                    <div class="form-group">
+                        <label for="logoSelect">Select Logo</label>
+                        <select id="logoSelect">
+                            <option value="">No Logo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="logo-preview empty" id="logoPreview">
+                        No logo selected
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" placeholder="John Doe" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" placeholder="Senior Developer" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" id="company" placeholder="Tech Corp" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" placeholder="john.doe@example.com" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" placeholder="+1 (555) 123-4567" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <div class="address-grid">
+                        <input type="text" class="full-width" id="street" placeholder="Street Address" oninput="updatePreview()">
+                        <input type="text" id="city" placeholder="City" oninput="updatePreview()">
+                        <input type="text" id="state" placeholder="State/Province" oninput="updatePreview()">
+                        <input type="text" id="zipcode" placeholder="ZIP Code" oninput="updatePreview()">
+                        <input type="text" class="full-width" id="country" placeholder="Country" oninput="updatePreview()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Preview</h2>
+                <div class="preview-section">
+                    <div class="signature-preview">
+                        <div id="signatureOutput" class="signature-content">
+                            <div class="signature-name">Your Name</div>
+                            <div class="signature-title">Your Title</div>
+                            <div class="signature-company">Your Company</div>
+                            <div class="signature-contact">
+                                📧 <a href="mailto:your@email.com">your@email.com</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="copySignature()">
+                        📋 Copy Signature
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadHTML()">
+                        💾 Download HTML
+                    </button>
+                </div>
+
+                <div class="instructions">
+                    <h3>How to Use:</h3>
+                    <ol>
+                        <li>Fill in your information in the form</li>
+                        <li>Select a logo from the dropdown (optional)</li>
+                        <li>Click "Copy Signature" to copy to clipboard</li>
+                        <li>Paste into your email client's signature settings</li>
+                    </ol>
+                    <p style="margin-top: 10px;"><strong>Gmail:</strong> Settings → General → Signature</p>
+                    <p><strong>Outlook:</strong> Settings → Mail → Compose and reply → Email signature</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                        <strong>Note for admins:</strong> To add more logos, edit the <code>logos</code> array in the JavaScript section.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Predetermined logos - Add your logo URLs here
+        const logos = [
+            {
+                id: 1,
+                name: 'Company Logo - Blue',
+                url: 'https://via.placeholder.com/200x60/667eea/ffffff?text=Company+Logo'
+            },
+            {
+                id: 2,
+                name: 'Company Logo - Purple',
+                url: 'https://via.placeholder.com/200x60/764ba2/ffffff?text=Alt+Logo'
+            },
+            {
+                id: 3,
+                name: 'Company Logo - Green',
+                url: 'https://via.placeholder.com/200x60/48bb78/ffffff?text=Green+Logo'
+            }
+            // Add more logos here as needed
+            // {
+            //     id: 4,
+            //     name: 'Your Logo Name',
+            //     url: 'path/to/your/logo.png'
+            // }
+        ];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLogos();
+            updatePreview();
+        });
+
+        function loadLogos() {
+            const logoSelect = document.getElementById('logoSelect');
+            
+            // Update select dropdown
+            logoSelect.innerHTML = '<option value="">No Logo</option>';
+            logos.forEach(logo => {
+                const option = document.createElement('option');
+                option.value = logo.id;
+                option.textContent = logo.name;
+                logoSelect.appendChild(option);
+            });
+
+            logoSelect.onchange = function() {
+                updateLogoPreview();
+                updatePreview();
+            };
+        }
+
+        function updateLogoPreview() {
+            const selectedLogoId = document.getElementById('logoSelect').value;
+            const logoPreview = document.getElementById('logoPreview');
+            
+            if (selectedLogoId) {
+                const selectedLogo = logos.find(logo => logo.id == selectedLogoId);
+                if (selectedLogo) {
+                    logoPreview.className = 'logo-preview';
+                    logoPreview.innerHTML = `<img src="${selectedLogo.url}" alt="${selectedLogo.name}">`;
+                }
+            } else {
+                logoPreview.className = 'logo-preview empty';
+                logoPreview.textContent = 'No logo selected';
+            }
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('name').value || 'Your Name';
+            const title = document.getElementById('title').value;
+            const company = document.getElementById('company').value;
+            const email = document.getElementById('email').value || 'your@email.com';
+            const phone = document.getElementById('phone').value;
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zipcode = document.getElementById('zipcode').value;
+            const country = document.getElementById('country').value;
+            
+            const selectedLogoId = document.getElementById('logoSelect').value;
+            const selectedLogo = logos.find(logo => logo.id == selectedLogoId);
+
+            let html = '<div style="font-family: Arial, sans-serif; color: #333;">';
+            
+            // Add logo if selected
+            if (selectedLogo) {
+                html += `<div style="margin-bottom: 15px;"><img src="${selectedLogo.url}" alt="Logo" style="max-height: 60px; width: auto;"></div>`;
+            }
+
+            // Name
+            html += `<div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">${name}</div>`;
+            
+            // Title
+            if (title) {
+                html += `<div style="font-size: 14px; color: #667eea; margin-bottom: 3px;">${title}</div>`;
+            }
+            
+            // Company
+            if (company) {
+                html += `<div style="font-size: 14px; color: #555; margin-bottom: 10px;">${company}</div>`;
+            }
+            
+            // Contact info
+            html += '<div style="font-size: 13px; color: #666; line-height: 1.6;">';
+            html += `📧 <a href="mailto:${email}" style="color: #667eea; text-decoration: none;">${email}</a>`;
+            
+            if (phone) {
+                html += `<br>📞 ${phone}`;
+            }
+            
+            // Address
+            const addressParts = [street, city, state, zipcode, country].filter(part => part);
+            if (addressParts.length > 0) {
+                html += `<br>📍 ${addressParts.join(', ')}`;
+            }
+            
+            html += '</div></div>';
+            
+            document.getElementById('signatureOutput').innerHTML = html;
+        }
+
+        function copySignature() {
+            const signatureHTML = document.getElementById('signatureOutput').innerHTML;
+            
+            // Create a temporary element to copy HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = signatureHTML;
+            document.body.appendChild(tempDiv);
+            
+            // Copy to clipboard
+            const range = document.createRange();
+            range.selectNode(tempDiv);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                showNotification('Signature copied to clipboard!');
+            } catch (err) {
+                // Fallback for modern browsers
+                navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/html': new Blob([signatureHTML], { type: 'text/html' }),
+                        'text/plain': new Blob([tempDiv.innerText], { type: 'text/plain' })
+                    })
+                ]).then(() => {
+                    showNotification('Signature copied to clipboard!');
+                }).catch(() => {
+                    showNotification('Failed to copy. Please try again.', 'error');
+                });
+            }
+            
+            selection.removeAllRanges();
+            document.body.removeChild(tempDiv);
+        }
+
+        function downloadHTML() {
+            const signatureHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Signature</title>
+</head>
+<body>
+${document.getElementById('signatureOutput').innerHTML}
+</body>
+</html>`;
+            
+            const blob = new Blob([signatureHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'email-signature.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Signature downloaded!');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? '#ff4757' : '#48bb78';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
